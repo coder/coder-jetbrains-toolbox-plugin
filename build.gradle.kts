@@ -2,6 +2,7 @@ import com.github.jk1.license.filter.ExcludeTransitiveDependenciesFilter
 import com.github.jk1.license.render.JsonReportRenderer
 import org.jetbrains.intellij.pluginRepository.PluginRepositoryFactory
 import org.jetbrains.kotlin.com.intellij.openapi.util.SystemInfoRt
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.nio.file.Path
 import kotlin.io.path.div
 
@@ -10,6 +11,7 @@ plugins {
     alias(libs.plugins.serialization)
     `java-library`
     alias(libs.plugins.dependency.license.report)
+    alias(libs.plugins.gradle.wrapper)
 }
 
 buildscript {
@@ -20,15 +22,24 @@ buildscript {
 
 repositories {
     mavenCentral()
-    maven("https://packages.jetbrains.team/maven/p/tbx/gateway")
+    maven("https://packages.jetbrains.team/maven/p/tbx/toolbox-api")
+}
+
+jvmWrapper {
+    unixJvmInstallDir = "jvm"
+    winJvmInstallDir = "jvm"
+    linuxAarch64JvmUrl = "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-21.0.5-linux-aarch64-b631.28.tar.gz"
+    linuxX64JvmUrl = "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-21.0.5-linux-x64-b631.28.tar.gz"
+    macAarch64JvmUrl = "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-21.0.5-osx-aarch64-b631.28.tar.gz"
+    macX64JvmUrl = "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-21.0.5-osx-x64-b631.28.tar.gz"
+    windowsX64JvmUrl = "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-21.0.5-windows-x64-b631.28.tar.gz"
 }
 
 dependencies {
-    implementation(libs.gateway.api)
+    compileOnly(libs.bundles.toolbox.plugin.api)
     implementation(libs.slf4j)
     implementation(libs.bundles.serialization)
     implementation(libs.coroutines.core)
-    implementation(libs.okhttp)
 }
 
 licenseReport {
@@ -39,9 +50,7 @@ licenseReport {
 }
 
 tasks.compileKotlin {
-    kotlinOptions.freeCompilerArgs += listOf(
-        "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
-    )
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
 
 val pluginId = "dev.kropp.toolbox.sample"
@@ -62,7 +71,7 @@ val copyPlugin by tasks.creating(Sync::class.java) {
         SystemInfoRt.isLinux -> System.getenv("XDG_DATA_HOME")?.let { Path.of(it) } ?: (userHome / ".local" / "share")
         SystemInfoRt.isMac -> userHome / "Library" / "Caches"
         else -> error("Unknown os")
-    } / "JetBrains" / "Toolbox"
+    } / "JetBrains" / "Toolbox-Dev"
 
     val pluginsDir = when {
         SystemInfoRt.isWindows -> toolboxCachesDir / "cache"
@@ -81,6 +90,7 @@ val copyPlugin by tasks.creating(Sync::class.java) {
     }
 
     into(targetDir)
+
 }
 
 val pluginZip by tasks.creating(Zip::class) {

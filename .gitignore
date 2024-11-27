@@ -1,6 +1,7 @@
 # Gradle
 .gradle
 build
+jvm/
 
 # IntelliJ IDEA
 .idea

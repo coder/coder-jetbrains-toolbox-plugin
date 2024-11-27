@@ -1,39 +1,54 @@
 package toolbox.gateway.sample
 
-import com.jetbrains.toolbox.gateway.ProviderVisibilityState
-import com.jetbrains.toolbox.gateway.RemoteEnvironmentConsumer
-import com.jetbrains.toolbox.gateway.RemoteProvider
+import com.jetbrains.toolbox.api.core.ServiceLocator
+import com.jetbrains.toolbox.api.core.ui.icons.SvgIcon
+import com.jetbrains.toolbox.api.remoteDev.ProviderVisibilityState
+import com.jetbrains.toolbox.api.remoteDev.RemoteEnvironmentConsumer
+import com.jetbrains.toolbox.api.remoteDev.RemoteProvider
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.okio.decodeFromBufferedSource
-import okhttp3.OkHttpClient
-import okhttp3.Request
+//import kotlinx.serialization.json.okio.decodeFromBufferedSource
+//import okhttp3.OkHttpClient
+//import okhttp3.Request
+import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.net.URI
 import kotlin.time.Duration.Companion.seconds
 
 class SampleRemoteProvider(
-    private val httpClient: OkHttpClient,
+//    private val httpClient: OkHttpClient,
     private val consumer: RemoteEnvironmentConsumer,
     coroutineScope: CoroutineScope,
+    serviceLocator: ServiceLocator,
 ) : RemoteProvider {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     init {
         coroutineScope.launch {
-            val request = Request.Builder()
-                .get()
-                .url("https://kropp.dev/gateway.json")
-//                .cacheControl(CacheControl.FORCE_NETWORK)
-                .build()
+//            val request = Request.Builder()
+//                .get()
+//                .url("https://my.awesome.control.server/some/logical/path/gateway.json")
+////                .cacheControl(CacheControl.FORCE_NETWORK)
+//                .build()
             while (true) {
                 try {
                     logger.debug("Updating remote environments for Sample Plugin")
-                    val response = httpClient.newCall(request).await()
-                    val body = response.body ?: continue
-                    val dto = Json.decodeFromBufferedSource(EnvironmentsDTO.serializer(), body.source())
+//                    val response = httpClient.newCall(request).await()
+//                    val body = response.body ?: continue
+                    @Language("json")
+                    val body = """
+                        { 
+                            "environments": [
+                                { 
+                                    "id": "lol.kek.azaza",
+                                    "name": "My shiny new environment"
+                                }
+                            ]
+                        }
+                    """.trimIndent()
+                    val dto = Json.decodeFromString(EnvironmentsDTO.serializer(), body)
                     try {
-                        consumer.consumeEnvironments(dto.environments.map { SampleRemoteEnvironment(it) })
+                        consumer.consumeEnvironments(dto.environments.map { SampleRemoteEnvironment(serviceLocator, it) })
                     } catch (_: CancellationException) {
                         logger.debug("Environments update cancelled")
                         break
@@ -50,8 +65,8 @@ class SampleRemoteProvider(
     override fun close() {}
 
     override fun getName(): String = "Sample Provider"
-    override fun getSvgIcon(): ByteArray {
-        return this::class.java.getResourceAsStream("/icon.svg")?.readAllBytes() ?: byteArrayOf()
+    override fun getSvgIcon(): SvgIcon {
+        return SvgIcon(this::class.java.getResourceAsStream("/icon.svg")?.readAllBytes() ?: byteArrayOf())
     }
 
     override fun canCreateNewEnvironments(): Boolean = true
