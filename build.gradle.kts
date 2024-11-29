@@ -70,7 +70,7 @@ val copyPlugin by tasks.creating(Sync::class.java) {
         SystemInfoRt.isLinux -> System.getenv("XDG_DATA_HOME")?.let { Path.of(it) } ?: (userHome / ".local" / "share")
         SystemInfoRt.isMac -> userHome / "Library" / "Caches"
         else -> error("Unknown os")
-    } / "JetBrains" / "Toolbox-Dev"
+    } / "JetBrains" / "Toolbox"
 
     val pluginsDir = when {
         SystemInfoRt.isWindows -> toolboxCachesDir / "cache"
