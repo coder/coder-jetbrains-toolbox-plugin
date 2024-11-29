@@ -37,7 +37,6 @@ jvmWrapper {
 
 dependencies {
     compileOnly(libs.bundles.toolbox.plugin.api)
-    implementation(libs.slf4j)
     implementation(libs.bundles.serialization)
     implementation(libs.coroutines.core)
 }
@@ -53,7 +52,7 @@ tasks.compileKotlin {
     compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
 
-val pluginId = "dev.kropp.toolbox.sample"
+val pluginId = "com.jetbrains.toolbox.sample"
 val pluginVersion = "0.0.1"
 
 val assemblePlugin by tasks.registering(Jar::class) {
@@ -118,6 +117,6 @@ val uploadPlugin by tasks.creating {
         // instance.uploader.uploadNewPlugin(pluginZip.outputs.files.singleFile, listOf("toolbox", "gateway"), LicenseUrl.APACHE_2_0, ProductFamily.TOOLBOX)
 
         // subsequent updates
-        instance.uploader.upload("dev.kropp.toolbox.sample", pluginZip.outputs.files.singleFile)
+        instance.uploader.upload(pluginId, pluginZip.outputs.files.singleFile)
     }
 }

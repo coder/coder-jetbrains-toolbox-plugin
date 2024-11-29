@@ -1,6 +1,7 @@
 package toolbox.gateway.sample
 
 import com.jetbrains.toolbox.api.core.ServiceLocator
+import com.jetbrains.toolbox.api.core.diagnostics.Logger
 import com.jetbrains.toolbox.api.core.ui.icons.SvgIcon
 import com.jetbrains.toolbox.api.remoteDev.ProviderVisibilityState
 import com.jetbrains.toolbox.api.remoteDev.RemoteEnvironmentConsumer
@@ -11,7 +12,6 @@ import kotlinx.serialization.json.Json
 //import okhttp3.OkHttpClient
 //import okhttp3.Request
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 import java.net.URI
 import kotlin.time.Duration.Companion.seconds
 
@@ -21,7 +21,7 @@ class SampleRemoteProvider(
     coroutineScope: CoroutineScope,
     serviceLocator: ServiceLocator,
 ) : RemoteProvider {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val logger = serviceLocator.getService(Logger::class.java)
 
     init {
         coroutineScope.launch {
@@ -78,6 +78,6 @@ class SampleRemoteProvider(
     override fun removeEnvironmentsListener(listener: RemoteEnvironmentConsumer) {}
 
     override fun handleUri(uri: URI) {
-        logger.debug("External request: {}", uri)
+        logger.debug { "External request: $uri" }
     }
 }
