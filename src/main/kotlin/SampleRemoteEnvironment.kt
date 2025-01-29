@@ -1,16 +1,13 @@
 package toolbox.gateway.sample
 
-import com.jetbrains.toolbox.api.core.ServiceLocator
 import com.jetbrains.toolbox.api.remoteDev.AbstractRemoteProviderEnvironment
 import com.jetbrains.toolbox.api.remoteDev.EnvironmentVisibilityState
 import com.jetbrains.toolbox.api.remoteDev.environments.EnvironmentContentsView
-import com.jetbrains.toolbox.api.ui.observables.ObservablePropertiesFactory
 import java.util.concurrent.CompletableFuture
 
 class SampleRemoteEnvironment(
-    serviceLocator: ServiceLocator,
     private val environment: EnvironmentDTO
-) : AbstractRemoteProviderEnvironment(serviceLocator.getService(ObservablePropertiesFactory::class.java)) {
+) : AbstractRemoteProviderEnvironment() {
     override fun getId(): String = environment.id
     override fun getName(): String = environment.name
     override fun getContentsView(): CompletableFuture<EnvironmentContentsView> {

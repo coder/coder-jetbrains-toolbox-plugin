@@ -48,7 +48,7 @@ class SampleRemoteProvider(
                     """.trimIndent()
                     val dto = Json.decodeFromString(EnvironmentsDTO.serializer(), body)
                     try {
-                        consumer.consumeEnvironments(dto.environments.map { SampleRemoteEnvironment(serviceLocator, it) })
+                        consumer.consumeEnvironments(dto.environments.map { SampleRemoteEnvironment(it) }, true)
                     } catch (_: CancellationException) {
                         logger.debug("Environments update cancelled")
                         break
