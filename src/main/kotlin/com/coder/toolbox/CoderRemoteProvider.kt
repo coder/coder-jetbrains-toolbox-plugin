@@ -182,7 +182,7 @@ class CoderRemoteProvider(
         consumer.consumeEnvironments(emptyList(), true)
     }
 
-    override fun getName(): String = "Coder Gateway"
+    override fun getName(): String = "Coder"
     override fun getSvgIcon(): SvgIcon =
         SvgIcon(this::class.java.getResourceAsStream("/icon.svg")?.readAllBytes() ?: byteArrayOf())
 
