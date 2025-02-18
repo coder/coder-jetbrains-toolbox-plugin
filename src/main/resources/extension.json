@@ -1,11 +1,11 @@
 {
-  "id": "com.jetbrains.toolbox.sample",
+  "id": "com.coder.toolbox",
   "version": "0.0.1",
   "meta": {
-    "readableName": "Sample plugin",
-    "description": "This plugin is a sample of Remote Development integration into JetBrains Toolbox App",
-    "vendor": "Toolbox + Gateway",
-    "url": "https://github.com/vladertel/toolbox-remote-dev-sample"
+    "readableName": "Coder Toolbox",
+    "description": "This plugin connects your JetBrains IDE to Coder workspaces.",
+    "vendor": "Coder",
+    "url": "https://github.com/coder/coder-jetbrains-toolbox-plugin"
   },
   "apiVersion": "0.3",
   "compatibleVersionRange": {
