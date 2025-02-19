@@ -13,7 +13,7 @@ import okhttp3.OkHttpClient
 /**
  * Entry point into the extension.
  */
-class CoderGatewayExtension : RemoteDevExtension {
+class CoderToolboxExtension : RemoteDevExtension {
     // All services must be passed in here and threaded as necessary.
     override fun createRemoteProviderPluginInstance(serviceLocator: ServiceLocator): RemoteProvider {
         return CoderRemoteProvider(
