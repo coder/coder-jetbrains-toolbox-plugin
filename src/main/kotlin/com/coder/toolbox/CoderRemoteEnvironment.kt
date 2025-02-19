@@ -1,9 +1,11 @@
 package com.coder.toolbox
 
+import com.coder.toolbox.browser.BrowserUtil
 import com.coder.toolbox.models.WorkspaceAndAgentStatus
 import com.coder.toolbox.sdk.CoderRestClient
 import com.coder.toolbox.sdk.v2.models.Workspace
 import com.coder.toolbox.sdk.v2.models.WorkspaceAgent
+import com.coder.toolbox.util.withPath
 import com.coder.toolbox.views.Action
 import com.coder.toolbox.views.EnvironmentView
 import com.jetbrains.toolbox.api.remoteDev.AbstractRemoteProviderEnvironment
@@ -11,6 +13,8 @@ import com.jetbrains.toolbox.api.remoteDev.EnvironmentVisibilityState
 import com.jetbrains.toolbox.api.remoteDev.environments.EnvironmentContentsView
 import com.jetbrains.toolbox.api.remoteDev.states.EnvironmentStateConsumer
 import com.jetbrains.toolbox.api.ui.ToolboxUi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -22,6 +26,7 @@ class CoderRemoteEnvironment(
     private val client: CoderRestClient,
     private var workspace: Workspace,
     private var agent: WorkspaceAgent,
+    private var cs: CoroutineScope,
     private val ui: ToolboxUi,
 ) : AbstractRemoteProviderEnvironment() {
     override fun getId(): String = "${workspace.name}.${agent.name}"
@@ -31,20 +36,29 @@ class CoderRemoteEnvironment(
     init {
         actionsList.add(
             Action("Open web terminal") {
-                // TODO - check this later
-//                ui.openUrl(client.url.withPath("/${workspace.ownerName}/$name/terminal").toString())
+                cs.launch {
+                    BrowserUtil.browse(client.url.withPath("/${workspace.ownerName}/$name/terminal").toString()) {
+                        ui.showErrorInfoPopup(it)
+                    }
+                }
             },
         )
         actionsList.add(
             Action("Open in dashboard") {
-                // TODO - check this later
-//                ui.openUrl(client.url.withPath("/@${workspace.ownerName}/${workspace.name}").toString())
+                cs.launch {
+                    BrowserUtil.browse(client.url.withPath("/@${workspace.ownerName}/${workspace.name}").toString()) {
+                        ui.showErrorInfoPopup(it)
+                    }
+                }
             },
         )
         actionsList.add(
             Action("View template") {
-                // TODO - check this later
-//                ui.openUrl(client.url.withPath("/templates/${workspace.templateName}").toString())
+                cs.launch {
+                    BrowserUtil.browse(client.url.withPath("/templates/${workspace.templateName}").toString()) {
+                        ui.showErrorInfoPopup(it)
+                    }
+                }
             },
         )
         actionsList.add(
