@@ -96,6 +96,7 @@ class ConnectPage(
                     cli.login(client.token)
                 }
                 onConnect(client, cli)
+
             } catch (ex: Exception) {
                 val msg = humanizeConnectionError(url, settings.requireTokenAuth, ex)
                 notify("Failed to configure ${url.host}", ex)
