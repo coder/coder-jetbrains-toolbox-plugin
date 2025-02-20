@@ -30,10 +30,11 @@ class CoderRemoteEnvironment(
     private var agent: WorkspaceAgent,
     private var cs: CoroutineScope,
 ) : AbstractRemoteProviderEnvironment() {
+    private var status = WorkspaceAndAgentStatus.from(workspace, agent)
+
     private val ui: ToolboxUi = serviceLocator.getService(ToolboxUi::class.java)
     override fun getId(): String = "${workspace.name}.${agent.name}"
     override fun getName(): String = "${workspace.name}.${agent.name}"
-    private var status = WorkspaceAndAgentStatus.from(workspace, agent)
 
     init {
         actionsList.add(
