@@ -8,6 +8,7 @@ import com.coder.toolbox.sdk.v2.models.WorkspaceAgent
 import com.coder.toolbox.util.withPath
 import com.coder.toolbox.views.Action
 import com.coder.toolbox.views.EnvironmentView
+import com.jetbrains.toolbox.api.core.ServiceLocator
 import com.jetbrains.toolbox.api.remoteDev.AbstractRemoteProviderEnvironment
 import com.jetbrains.toolbox.api.remoteDev.EnvironmentVisibilityState
 import com.jetbrains.toolbox.api.remoteDev.environments.EnvironmentContentsView
@@ -23,12 +24,13 @@ import java.util.concurrent.CompletableFuture
  * Used in the environment list view.
  */
 class CoderRemoteEnvironment(
+    private val serviceLocator: ServiceLocator,
     private val client: CoderRestClient,
     private var workspace: Workspace,
     private var agent: WorkspaceAgent,
     private var cs: CoroutineScope,
-    private val ui: ToolboxUi,
 ) : AbstractRemoteProviderEnvironment() {
+    private val ui: ToolboxUi = serviceLocator.getService(ToolboxUi::class.java)
     override fun getId(): String = "${workspace.name}.${agent.name}"
     override fun getName(): String = "${workspace.name}.${agent.name}"
     private var status = WorkspaceAndAgentStatus.from(workspace, agent)
@@ -93,7 +95,7 @@ class CoderRemoteEnvironment(
         val newStatus = WorkspaceAndAgentStatus.from(workspace, agent)
         if (newStatus != status) {
             status = newStatus
-            val state = status.toRemoteEnvironmentState()
+            val state = status.toRemoteEnvironmentState(serviceLocator)
             listenerSet.forEach { it.consume(state) }
         }
     }
@@ -122,7 +124,7 @@ class CoderRemoteEnvironment(
         //          connected state can mask the workspace state.
         // TODO@JB: You can still press connect if the environment is
         //          unreachable.  Is that expected?
-        consumer.consume(status.toRemoteEnvironmentState())
+        consumer.consume(status.toRemoteEnvironmentState(serviceLocator))
         return super.addStateListener(consumer)
     }
 
