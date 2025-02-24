@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.serialization)
     `java-library`
     alias(libs.plugins.dependency.license.report)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.gradle.wrapper)
 }
 
@@ -37,8 +38,17 @@ jvmWrapper {
 
 dependencies {
     compileOnly(libs.bundles.toolbox.plugin.api)
+    implementation(libs.slf4j)
+    implementation(libs.tinylog)
     implementation(libs.bundles.serialization)
     implementation(libs.coroutines.core)
+    implementation(libs.okhttp)
+    implementation(libs.exec)
+    implementation(libs.moshi)
+    ksp(libs.moshi.codegen)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.moshi)
+    testImplementation(kotlin("test"))
 }
 
 licenseReport {
@@ -52,7 +62,11 @@ tasks.compileKotlin {
     compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
 
-val pluginId = "com.jetbrains.toolbox.sample"
+tasks.test {
+    useJUnitPlatform()
+}
+
+val pluginId = "com.coder.toolbox"
 val pluginVersion = "0.0.1"
 
 val assemblePlugin by tasks.registering(Jar::class) {
@@ -63,6 +77,38 @@ val assemblePlugin by tasks.registering(Jar::class) {
 val copyPlugin by tasks.creating(Sync::class.java) {
     dependsOn(assemblePlugin)
 
+    from(assemblePlugin.get().outputs.files)
+    from("src/main/resources") {
+        include("extension.json")
+        include("dependencies.json")
+        include("icon.svg")
+    }
+
+    // Copy dependencies, excluding those provided by Toolbox.
+    from(
+        configurations.compileClasspath.map { configuration ->
+            configuration.files.filterNot { file ->
+                listOf(
+                    "kotlin",
+                    "remote-dev-api",
+                    "core-api",
+                    "ui-api",
+                    "annotations",
+                ).any { file.name.contains(it) }
+            }
+        },
+    )
+
+    into(getPluginInstallDir())
+}
+
+tasks.register("cleanAll", Delete::class.java) {
+    dependsOn(tasks.clean)
+    delete(getPluginInstallDir())
+    delete()
+}
+
+private fun getPluginInstallDir(): Path {
     val userHome = System.getProperty("user.home").let { Path.of(it) }
     val toolboxCachesDir = when {
         SystemInfoRt.isWindows -> System.getenv("LOCALAPPDATA")?.let { Path.of(it) } ?: (userHome / "AppData" / "Local")
@@ -78,18 +124,7 @@ val copyPlugin by tasks.creating(Sync::class.java) {
         else -> error("Unknown os")
     } / "plugins"
 
-    val targetDir = pluginsDir / pluginId
-
-    from(assemblePlugin.get().outputs.files)
-
-    from("src/main/resources") {
-        include("extension.json")
-        include("dependencies.json")
-        include("icon.svg")
-    }
-
-    into(targetDir)
-
+    return pluginsDir / pluginId
 }
 
 val pluginZip by tasks.creating(Zip::class) {
@@ -118,5 +153,14 @@ val uploadPlugin by tasks.creating {
 
         // subsequent updates
         instance.uploader.upload(pluginId, pluginZip.outputs.files.singleFile)
+    }
+}
+
+// For use with kotlin-language-server.
+tasks.register("classpath") {
+    doFirst {
+        File("classpath").writeText(
+            sourceSets["main"].runtimeClasspath.asPath
+        )
     }
 }

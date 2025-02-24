@@ -1,1 +1,1 @@
-rootProject.name = "toolbox-gateway-sample"
+rootProject.name = "coder-toolbox"
