@@ -19,8 +19,9 @@ import java.util.function.Consumer
  *       to use the mouse.
  */
 abstract class CoderPage(
-    private val showIcon: Boolean = true,
-) : UiPage {
+    title: String,
+    showIcon: Boolean = true,
+) : UiPage(title) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
@@ -44,12 +45,10 @@ abstract class CoderPage(
      *
      * This seems to only work on the first page.
      */
-    override fun getSvgIcon(): SvgIcon {
-        return if (showIcon) {
-            SvgIcon(this::class.java.getResourceAsStream("/icon.svg")?.readAllBytes() ?: byteArrayOf())
-        } else {
-            SvgIcon(byteArrayOf())
-        }
+    override val svgIcon: SvgIcon? = if (showIcon) {
+        SvgIcon(this::class.java.getResourceAsStream("/icon.svg")?.readAllBytes() ?: byteArrayOf())
+    } else {
+        SvgIcon(byteArrayOf())
     }
 
     /**
@@ -87,14 +86,14 @@ abstract class CoderPage(
  * An action that simply runs the provided callback.
  */
 class Action(
-    private val label: String,
-    private val closesPage: Boolean = false,
-    private val enabled: () -> Boolean = { true },
+    description: String,
+    closesPage: Boolean = false,
+    enabled: () -> Boolean = { true },
     private val actionBlock: () -> Unit,
 ) : RunnableActionDescription {
-    override fun getLabel(): String = label
-    override fun getShouldClosePage(): Boolean = closesPage
-    override fun isEnabled(): Boolean = enabled()
+    override val label: String = description
+    override val shouldClosePage: Boolean = closesPage
+    override val isEnabled: Boolean = enabled()
     override fun run() {
         actionBlock()
     }
