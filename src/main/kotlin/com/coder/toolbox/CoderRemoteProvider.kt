@@ -1,6 +1,7 @@
 package com.coder.toolbox
 
 import com.coder.toolbox.cli.CoderCLIManager
+import com.coder.toolbox.logger.CoderLoggerFactory
 import com.coder.toolbox.sdk.CoderRestClient
 import com.coder.toolbox.sdk.v2.models.WorkspaceStatus
 import com.coder.toolbox.services.CoderSecretsService
@@ -34,7 +35,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
-import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URL
 import kotlin.coroutines.cancellation.CancellationException
@@ -44,7 +44,7 @@ class CoderRemoteProvider(
     private val serviceLocator: ServiceLocator,
     private val httpClient: OkHttpClient,
 ) : RemoteProvider("Coder") {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val logger = CoderLoggerFactory.getLogger(javaClass)
 
     private val ui: ToolboxUi = serviceLocator.getService(ToolboxUi::class.java)
     private val consumer: RemoteEnvironmentConsumer = serviceLocator.getService(RemoteEnvironmentConsumer::class.java)

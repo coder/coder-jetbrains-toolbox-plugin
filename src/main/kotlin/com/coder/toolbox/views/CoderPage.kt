@@ -1,11 +1,11 @@
 package com.coder.toolbox.views
 
+import com.coder.toolbox.logger.CoderLoggerFactory
 import com.jetbrains.toolbox.api.core.ui.icons.SvgIcon
 import com.jetbrains.toolbox.api.ui.actions.RunnableActionDescription
 import com.jetbrains.toolbox.api.ui.components.UiField
 import com.jetbrains.toolbox.api.ui.components.UiPage
 import com.jetbrains.toolbox.api.ui.components.ValidationErrorField
-import org.slf4j.LoggerFactory
 import java.util.function.Consumer
 
 /**
@@ -22,7 +22,7 @@ abstract class CoderPage(
     title: String,
     showIcon: Boolean = true,
 ) : UiPage(title) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val logger = CoderLoggerFactory.getLogger(javaClass)
 
     /**
      * An error to display on the page.
